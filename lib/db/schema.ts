@@ -1,6 +1,5 @@
 import { pgTable, integer, boolean, text, uuid, timestamp } from 'drizzle-orm/pg-core';
 import { Relation, relations } from 'drizzle-orm';
-import path from 'path';
 
 export const files = pgTable('files', {
     id: uuid('id').defaultRandom().primaryKey(),
