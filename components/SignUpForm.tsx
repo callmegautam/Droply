@@ -10,6 +10,11 @@ export default function SignUpForm() {
     const [verifying, setVerifying] = useState(false);
     const { signUp, isLoaded, setActive } = useSignUp();
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<z.infer<typeof signUpSchema>>({});
     const onSubmit = async () => {};
     const handleVerificationSubmit = async () => {};
 
