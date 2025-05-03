@@ -4,12 +4,13 @@ import { useForm } from 'react-hook-form';
 import { useSignUp } from '@clerk/nextjs';
 import { set, z } from 'zod';
 import { signUpSchema } from '@/schemas/signUpSchema';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 export default function SignUpForm() {
     const [verifying, setVerifying] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
     const [authError, setAuthError] = useState(null);
     const { signUp, isLoaded, setActive } = useSignUp();
 
@@ -46,7 +47,26 @@ export default function SignUpForm() {
             setIsSubmitting(false);
         }
     };
-    const handleVerificationSubmit = async () => {};
+    const handleVerificationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!isLoaded || !signUp) return;
+        setIsSubmitting(true);
+        setAuthError(null);
+
+        try {
+            const result = await signUp.attemptEmailAddressVerification({
+                code: verificationCode,
+            });
+
+            // todo: CONSOLE result
+
+            if (result.status === 'complete') {
+                await setActive({ session: result.createdSessionId });
+
+                // todo: redirect to dashboard
+            }
+        } catch (error) {}
+    };
 
     if (verifying) {
         return <div>verifying</div>;
