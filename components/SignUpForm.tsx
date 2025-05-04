@@ -2,19 +2,23 @@
 
 import { useForm } from 'react-hook-form';
 import { useSignUp } from '@clerk/nextjs';
-import { set, z } from 'zod';
+import { z } from 'zod';
 import { signUpSchema } from '@/schemas/signUpSchema';
 import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { error } from 'console';
 
 export default function SignUpForm() {
-    const [verifying, setVerifying] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [verificationCode, setVerificationCode] = useState('');
-    const [authError, setAuthError] = useState(null);
+    const router = useRouter();
     const { signUp, isLoaded, setActive } = useSignUp();
 
-    // * SignUp Form
+    const [verifying, setVerifying] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [authError, setAuthError] = useState<string | null>(null);
+    const [verificationError, setVerificationError] = useState<string | null>(null);
+
     const {
         register,
         handleSubmit,
@@ -27,6 +31,7 @@ export default function SignUpForm() {
             passwordConfirmation: '',
         },
     });
+
     const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
         if (!isLoaded) return;
         setIsSubmitting(true);
@@ -47,6 +52,7 @@ export default function SignUpForm() {
             setIsSubmitting(false);
         }
     };
+
     const handleVerificationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!isLoaded || !signUp) return;
@@ -62,10 +68,17 @@ export default function SignUpForm() {
 
             if (result.status === 'complete') {
                 await setActive({ session: result.createdSessionId });
-
-                // todo: redirect to dashboard
+                router.push('./dashboard');
+            } else {
+                console.error('Verification failed', result);
+                setVerificationError('Verification could not be completed');
             }
-        } catch (error) {}
+        } catch (error: any) {
+            console.log(error);
+            setVerificationError(error?.errors?.[0]?.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (verifying) {
