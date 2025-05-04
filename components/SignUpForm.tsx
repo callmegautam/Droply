@@ -18,7 +18,7 @@ export default function SignUpForm() {
     const router = useRouter();
     const { signUp, isLoaded, setActive } = useSignUp();
 
-    const [verifying, setVerifying]s = useState<boolean>(false);
+    const [verifying, setVerifying] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [verificationCode, setVerificationCode] = useState('');
     const [authError, setAuthError] = useState<string | null>(null);
